@@ -2,151 +2,174 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Agendamento de Vistoria</title>
+<title>Especialista Vistorias</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #f2f2f2;
-  padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 0;
 }
+
+header {
+    background: #111;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+header img {
+    max-width: 140px;
+    margin-bottom: 10px;
+}
+
 .container {
-  max-width: 420px;
-  background: #ffffff;
-  margin: auto;
-  padding: 20px;
-  border-radius: 8px;
+    max-width: 600px;
+    background: #fff;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
 }
+
 h2 {
-  text-align: center;
+    margin-top: 0;
 }
+
 label {
-  margin-top: 10px;
-  display: block;
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
 }
-input, select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  font-size: 16px;
+
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 16px;
 }
+
 button {
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  margin-top: 15px;
+    background: #25D366;
+    color: white;
+    border: none;
+    margin-top: 15px;
+    cursor: pointer;
+    border-radius: 5px;
 }
+
 button:hover {
-  background: #0056b3;
+    opacity: 0.9;
 }
-.item {
-  background: #eaeaea;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 8px;
-  font-size: 14px;
+
+.section {
+    margin-top: 30px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
 }
-.cancelar {
-  color: red;
-  cursor: pointer;
-  font-size: 12px;
+
+.link-box {
+    background: #eee;
+    padding: 10px;
+    word-break: break-all;
+    margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
+<header>
+    <img src="logo.png" alt="Especialista Vistorias">
+    <h1 id="empresaNome">Especialista Vistorias</h1>
+    <p id="empresaEndereco">Av. das Fontes, nº 40</p>
+</header>
+
 <div class="container">
-  <h2>Agendamento de Vistoria</h2>
 
-  <label>Nome</label>
-  <input type="text" id="nome">
+    <h2>📋 Agendamento de Vistoria</h2>
 
-  <label>Veículo</label>
-  <input type="text" id="veiculo">
+    <label>Nome do Cliente</label>
+    <input id="cliente" placeholder="Digite o nome">
 
-  <label>Data</label>
-  <input type="date" id="data">
+    <label>Veículo</label>
+    <input id="veiculo" placeholder="Ex: Gol 2015">
 
-  <label>Horário</label>
-  <select id="hora"></select>
+    <label>Data</label>
+    <input type="date" id="data">
 
-  <button onclick="agendar()">Agendar</button>
+    <label>Horário</label>
+    <input type="time" id="hora">
 
-  <div id="lista"></div>
+    <button onclick="enviarWhats()">📲 Enviar para WhatsApp</button>
+
+    <div class="section">
+        <h2>🏢 Editar dados da empresa</h2>
+
+        <label>Nome da Empresa</label>
+        <input id="editEmpresa" placeholder="Especialista Vistorias">
+
+        <label>Endereço</label>
+        <input id="editEndereco" placeholder="Av. das Fontes, nº 40">
+
+        <button onclick="salvarEmpresa()">💾 Salvar dados</button>
+    </div>
+
+    <div class="section">
+        <h2>🔗 Link para enviar ao cliente</h2>
+        <p>Envie esse link para o cliente agendar:</p>
+        <div class="link-box" id="linkSite"></div>
+    </div>
+
 </div>
 
 <script>
-const horarios = [
-  "08:00","09:00","10:00","11:00",
-  "13:00","14:00","15:00","16:00","17:00"
-];
+// carregar dados salvos
+document.getElementById("empresaNome").innerText =
+    localStorage.getItem("empresaNome") || "Especialista Vistorias";
 
-function carregarHorarios() {
-  const select = document.getElementById("hora");
-  select.innerHTML = "";
-  horarios.forEach(h => {
-    const option = document.createElement("option");
-    option.value = h;
-    option.textContent = h;
-    select.appendChild(option);
-  });
+document.getElementById("empresaEndereco").innerText =
+    localStorage.getItem("empresaEndereco") || "Av. das Fontes, nº 40";
+
+// salvar empresa
+function salvarEmpresa() {
+    const nome = document.getElementById("editEmpresa").value;
+    const endereco = document.getElementById("editEndereco").value;
+
+    if (nome) {
+        localStorage.setItem("empresaNome", nome);
+        document.getElementById("empresaNome").innerText = nome;
+    }
+
+    if (endereco) {
+        localStorage.setItem("empresaEndereco", endereco);
+        document.getElementById("empresaEndereco").innerText = endereco;
+    }
+
+    alert("Dados da empresa salvos!");
 }
 
-function agendar() {
-  const nome = document.getElementById("nome").value.trim();
-  const veiculo = document.getElementById("veiculo").value.trim();
-  const data = document.getElementById("data").value;
-  const hora = document.getElementById("hora").value;
+// whatsapp
+function enviarWhats() {
+    const cliente = document.getElementById("cliente").value;
+    const veiculo = document.getElementById("veiculo").value;
+    const data = document.getElementById("data").value;
+    const hora = document.getElementById("hora").value;
 
-  if (!nome || !veiculo || !data) {
-    alert("Preencha todos os campos");
-    return;
-  }
+    const msg = `Olá ${cliente}, sua vistoria foi agendada!
 
-  const agenda = JSON.parse(localStorage.getItem("agenda") || "{}");
-  const chave = data + "_" + hora;
+Empresa: ${document.getElementById("empresaNome").innerText}
+Veículo: ${veiculo}
+Data: ${data}
+Horário: ${hora}`;
 
-  if (agenda[chave]) {
-    alert("Horário já ocupado");
-    return;
-  }
-
-  agenda[chave] = { nome, veiculo, data, hora };
-  localStorage.setItem("agenda", JSON.stringify(agenda));
-
-  mostrar();
+    const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+    window.open(url, "_blank");
 }
 
-function cancelar(chave) {
-  const agenda = JSON.parse(localStorage.getItem("agenda") || "{}");
-  delete agenda[chave];
-  localStorage.setItem("agenda", JSON.stringify(agenda));
-  mostrar();
-}
-
-function mostrar() {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "<h3>Agendamentos</h3>";
-
-  const agenda = JSON.parse(localStorage.getItem("agenda") || "{}");
-
-  Object.keys(agenda).sort().forEach(chave => {
-    const a = agenda[chave];
-    lista.innerHTML += `
-      <div class="item">
-        <b>${a.data} ${a.hora}</b><br>
-        ${a.nome} - ${a.veiculo}<br>
-        <span class="cancelar" onclick="cancelar('${chave}')">Cancelar</span>
-      </div>
-    `;
-  });
-}
-
-carregarHorarios();
-mostrar();
+// link do site
+document.getElementById("linkSite").innerText = window.location.href;
 </script>
 
 </body>
