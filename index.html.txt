@@ -3,106 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <title>Agendamento de Vistoria</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body { font-family: Arial; background:#f2f2f2; padding:20px; }
-.container { background:#fff; padding:20px; border-radius:8px; max-width:420px; margin:auto; }
-h2 { text-align:center; }
-label { display:block; margin-top:10px; }
-input, select, button {
-  width:100%; padding:10px; margin-top:5px;
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 20px;
 }
-button { background:#007bff; color:#fff; border:none; border-radius:5px; }
-.list { margin-top:20px; font-size:14px; }
-.item { background:#eee; padding:8px; margin-top:5px; border-radius:5px; }
-small { color:#555; }
+.container {
+  max-width: 420px;
+  background: #ffffff;
+  margin: auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+h2 {
+  text-align: center;
+}
+label {
+  margin-top: 10px;
+  display: block;
+}
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 16px;
+}
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 15px;
+}
+button:hover {
+  background: #0056b3;
+}
+.item {
+  background: #eaeaea;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+.cancelar {
+  color: red;
+  cursor: pointer;
+  font-size: 12px;
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
-<h2>Agendamento de Vistoria</h2>
+  <h2>Agendamento de Vistoria</h2>
 
-<label>Nome</label>
-<input id="nome">
+  <label>Nome</label>
+  <input type="text" id="nome">
 
-<label>Veículo</label>
-<input id="veiculo">
+  <label>Veículo</label>
+  <input type="text" id="veiculo">
 
-<label>Data</label>
-<input type="date" id="data">
+  <label>Data</label>
+  <input type="date" id="data">
 
-<label>Horário</label>
-<select id="hora"></select>
+  <label>Horário</label>
+  <select id="hora"></select>
 
-<button onclick="agendar()">Agendar</button>
+  <button onclick="agendar()">Agendar</button>
 
-<div class="list" id="lista"></div>
+  <div id="lista"></div>
 </div>
 
 <script>
 const horarios = [
-"08:00","09:00","10:00","11:00",
-"13:00","14:00","15:00","16:00","17:00"
+  "08:00","09:00","10:00","11:00",
+  "13:00","14:00","15:00","16:00","17:00"
 ];
 
-function carregarHorarios(){
-  const sel = document.getElementById("hora");
-  sel.innerHTML="";
-  horarios.forEach(h=>{
-    const opt=document.createElement("option");
-    opt.value=h; opt.text=h;
-    sel.appendChild(opt);
+function carregarHorarios() {
+  const select = document.getElementById("hora");
+  select.innerHTML = "";
+  horarios.forEach(h => {
+    const option = document.createElement("option");
+    option.value = h;
+    option.textContent = h;
+    select.appendChild(option);
   });
 }
 
-function agendar(){
-  const nome = nomeEl.value.trim();
-  const veiculo = veiculoEl.value.trim();
-  const data = dataEl.value;
-  const hora = horaEl.value;
+function agendar() {
+  const nome = document.getElementById("nome").value.trim();
+  const veiculo = document.getElementById("veiculo").value.trim();
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("hora").value;
 
-  if(!nome || !veiculo || !data) return alert("Preencha tudo");
+  if (!nome || !veiculo || !data) {
+    alert("Preencha todos os campos");
+    return;
+  }
 
-  const key = data+"_"+hora;
-  const dados = JSON.parse(localStorage.getItem("agenda")||"{}");
+  const agenda = JSON.parse(localStorage.getItem("agenda") || "{}");
+  const chave = data + "_" + hora;
 
-  if(dados[key]) return alert("Horário já ocupado");
+  if (agenda[chave]) {
+    alert("Horário já ocupado");
+    return;
+  }
 
-  dados[key]={nome,veiculo,data,hora};
-  localStorage.setItem("agenda",JSON.stringify(dados));
+  agenda[chave] = { nome, veiculo, data, hora };
+  localStorage.setItem("agenda", JSON.stringify(agenda));
+
   mostrar();
 }
 
-function cancelar(k){
-  const dados = JSON.parse(localStorage.getItem("agenda"));
-  delete dados[k];
-  localStorage.setItem("agenda",JSON.stringify(dados));
+function cancelar(chave) {
+  const agenda = JSON.parse(localStorage.getItem("agenda") || "{}");
+  delete agenda[chave];
+  localStorage.setItem("agenda", JSON.stringify(agenda));
   mostrar();
 }
 
-function mostrar(){
-  const div = document.getElementById("lista");
-  div.innerHTML="<h3>Agendamentos</h3>";
-  const dados = JSON.parse(localStorage.getItem("agenda")||"{}");
+function mostrar() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "<h3>Agendamentos</h3>";
 
-  Object.keys(dados).sort().forEach(k=>{
-    const a=dados[k];
-    div.innerHTML+=`
-    <div class="item">
-      <b>${a.data} ${a.hora}</b><br>
-      ${a.nome} - ${a.veiculo}<br>
-      <small onclick="cancelar('${k}')" style="cursor:pointer;color:red">Cancelar</small>
-    </div>`;
+  const agenda = JSON.parse(localStorage.getItem("agenda") || "{}");
+
+  Object.keys(agenda).sort().forEach(chave => {
+    const a = agenda[chave];
+    lista.innerHTML += `
+      <div class="item">
+        <b>${a.data} ${a.hora}</b><br>
+        ${a.nome} - ${a.veiculo}<br>
+        <span class="cancelar" onclick="cancelar('${chave}')">Cancelar</span>
+      </div>
+    `;
   });
 }
-
-const nomeEl = document.getElementById("nome");
-const veiculoEl = document.getElementById("veiculo");
-const dataEl = document.getElementById("data");
 
 carregarHorarios();
 mostrar();
 </script>
+
 </body>
 </html>
