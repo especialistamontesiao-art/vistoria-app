@@ -8,13 +8,13 @@
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #f2f2f2;
+    background: #0f7d3e;
     margin: 0;
     padding: 0;
 }
 
 header {
-    background: #111;
+    background: #0b5e2e;
     color: #fff;
     padding: 20px;
     text-align: center;
@@ -25,16 +25,26 @@ header img {
     margin-bottom: 10px;
 }
 
-.container {
-    max-width: 600px;
-    background: #fff;
+.main {
+    display: flex;
+    gap: 20px;
+    max-width: 1100px;
     margin: 20px auto;
+    padding: 10px;
+    flex-wrap: wrap;
+}
+
+.box {
+    background: #fff;
     padding: 20px;
     border-radius: 8px;
+    flex: 1;
+    min-width: 300px;
 }
 
 h2 {
     margin-top: 0;
+    color: #0f7d3e;
 }
 
 label {
@@ -43,7 +53,7 @@ label {
     margin-top: 10px;
 }
 
-input, textarea, button {
+input, button {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -63,12 +73,6 @@ button:hover {
     opacity: 0.9;
 }
 
-.section {
-    margin-top: 30px;
-    border-top: 1px solid #ddd;
-    padding-top: 20px;
-}
-
 .link-box {
     background: #eee;
     padding: 10px;
@@ -86,89 +90,93 @@ button:hover {
     <p id="empresaEndereco">Av. das Fontes, nº 40</p>
 </header>
 
-<div class="container">
+<div class="main">
 
-    <h2>📋 Agendamento de Vistoria</h2>
+    <!-- AGENDA -->
+    <div class="box">
+        <h2>📅 Agenda de Vistorias</h2>
 
-    <label>Nome do Cliente</label>
-    <input id="cliente" placeholder="Digite o nome">
+        <label>Nome do Cliente</label>
+        <input id="cliente">
 
-    <label>Veículo</label>
-    <input id="veiculo" placeholder="Ex: Gol 2015">
+        <label>Veículo</label>
+        <input id="veiculo">
 
-    <label>Data</label>
-    <input type="date" id="data">
+        <label>Data</label>
+        <input type="date" id="data">
 
-    <label>Horário</label>
-    <input type="time" id="hora">
+        <label>Horário</label>
+        <input type="time" id="hora">
 
-    <button onclick="enviarWhats()">📲 Enviar para WhatsApp</button>
+        <label>Valor da Vistoria (R$)</label>
+        <input id="valor" placeholder="Ex: 150,00">
 
-    <div class="section">
-        <h2>🏢 Editar dados da empresa</h2>
-
-        <label>Nome da Empresa</label>
-        <input id="editEmpresa" placeholder="Especialista Vistorias">
-
-        <label>Endereço</label>
-        <input id="editEndereco" placeholder="Av. das Fontes, nº 40">
-
-        <button onclick="salvarEmpresa()">💾 Salvar dados</button>
+        <button onclick="enviarWhats()">📲 Enviar para WhatsApp</button>
     </div>
 
-    <div class="section">
-        <h2>🔗 Link para enviar ao cliente</h2>
-        <p>Envie esse link para o cliente agendar:</p>
+    <!-- EMPRESA -->
+    <div class="box">
+        <h2>🏢 Dados da Empresa</h2>
+
+        <label>Nome da Empresa</label>
+        <input id="editEmpresa">
+
+        <label>Endereço</label>
+        <input id="editEndereco">
+
+        <label>Telefone</label>
+        <input id="editTelefone" placeholder="(00) 00000-0000">
+
+        <button onclick="salvarEmpresa()">💾 Salvar Dados</button>
+
+        <h2 style="margin-top:30px">🔗 Link para o Cliente</h2>
+        <p>Envie este link para o cliente agendar:</p>
         <div class="link-box" id="linkSite"></div>
     </div>
 
 </div>
 
 <script>
-// carregar dados salvos
+// carregar empresa
 document.getElementById("empresaNome").innerText =
-    localStorage.getItem("empresaNome") || "Especialista Vistorias";
+localStorage.getItem("empresaNome") || "Especialista Vistorias";
 
 document.getElementById("empresaEndereco").innerText =
-    localStorage.getItem("empresaEndereco") || "Av. das Fontes, nº 40";
+localStorage.getItem("empresaEndereco") || "Av. das Fontes, nº 40";
 
 // salvar empresa
 function salvarEmpresa() {
-    const nome = document.getElementById("editEmpresa").value;
-    const endereco = document.getElementById("editEndereco").value;
+    localStorage.setItem("empresaNome", document.getElementById("editEmpresa").value);
+    localStorage.setItem("empresaEndereco", document.getElementById("editEndereco").value);
+    localStorage.setItem("empresaTelefone", document.getElementById("editTelefone").value);
 
-    if (nome) {
-        localStorage.setItem("empresaNome", nome);
-        document.getElementById("empresaNome").innerText = nome;
-    }
+    document.getElementById("empresaNome").innerText =
+    document.getElementById("editEmpresa").value;
 
-    if (endereco) {
-        localStorage.setItem("empresaEndereco", endereco);
-        document.getElementById("empresaEndereco").innerText = endereco;
-    }
+    document.getElementById("empresaEndereco").innerText =
+    document.getElementById("editEndereco").value;
 
-    alert("Dados da empresa salvos!");
+    alert("Dados da empresa atualizados!");
 }
 
 // whatsapp
 function enviarWhats() {
-    const cliente = document.getElementById("cliente").value;
-    const veiculo = document.getElementById("veiculo").value;
-    const data = document.getElementById("data").value;
-    const hora = document.getElementById("hora").value;
+    const msg =
+`Agendamento de Vistoria
 
-    const msg = `Olá ${cliente}, sua vistoria foi agendada!
+Cliente: ${cliente.value}
+Veículo: ${veiculo.value}
+Data: ${data.value}
+Horário: ${hora.value}
+Valor: R$ ${valor.value}
 
-Empresa: ${document.getElementById("empresaNome").innerText}
-Veículo: ${veiculo}
-Data: ${data}
-Horário: ${hora}`;
+${empresaNome.innerText}
+${empresaEndereco.innerText}`;
 
-    const url = "https://wa.me/?text=" + encodeURIComponent(msg);
-    window.open(url, "_blank");
+    window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 }
 
-// link do site
+// link
 document.getElementById("linkSite").innerText = window.location.href;
 </script>
 
