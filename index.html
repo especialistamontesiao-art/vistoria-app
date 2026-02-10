@@ -10,7 +10,6 @@ body {
     font-family: Arial, sans-serif;
     background: #0f7d3e;
     margin: 0;
-    padding: 0;
 }
 
 header {
@@ -21,14 +20,14 @@ header {
 }
 
 header img {
-    max-width: 140px;
+    max-width: 150px;
     margin-bottom: 10px;
 }
 
 .main {
     display: flex;
     gap: 20px;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 20px auto;
     padding: 10px;
     flex-wrap: wrap;
@@ -39,7 +38,7 @@ header img {
     padding: 20px;
     border-radius: 8px;
     flex: 1;
-    min-width: 300px;
+    min-width: 320px;
 }
 
 h2 {
@@ -49,8 +48,8 @@ h2 {
 
 label {
     font-weight: bold;
-    display: block;
     margin-top: 10px;
+    display: block;
 }
 
 input, button {
@@ -60,24 +59,29 @@ input, button {
     font-size: 16px;
 }
 
-button {
-    background: #25D366;
-    color: white;
-    border: none;
-    margin-top: 15px;
-    cursor: pointer;
-    border-radius: 5px;
+input[readonly] {
+    background: #eee;
 }
 
-button:hover {
-    opacity: 0.9;
+button {
+    background: #25D366;
+    color: #fff;
+    border: none;
+    margin-top: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.agendamento {
+    border-bottom: 1px solid #ddd;
+    padding: 8px 0;
+    font-size: 14px;
 }
 
 .link-box {
     background: #eee;
     padding: 10px;
     word-break: break-all;
-    margin-top: 10px;
 }
 </style>
 </head>
@@ -92,11 +96,11 @@ button:hover {
 
 <div class="main">
 
-    <!-- AGENDA -->
+    <!-- AGENDAMENTO -->
     <div class="box">
-        <h2>📅 Agenda de Vistorias</h2>
+        <h2>📅 Agendamento</h2>
 
-        <label>Nome do Cliente</label>
+        <label>Nome</label>
         <input id="cliente">
 
         <label>Veículo</label>
@@ -109,14 +113,14 @@ button:hover {
         <input type="time" id="hora">
 
         <label>Valor da Vistoria (R$)</label>
-        <input id="valor" placeholder="Ex: 150,00">
+        <input id="valor">
 
-        <button onclick="enviarWhats()">📲 Enviar para WhatsApp</button>
+        <button onclick="confirmar()">Confirmar Agendamento</button>
     </div>
 
-    <!-- EMPRESA -->
-    <div class="box">
-        <h2>🏢 Dados da Empresa</h2>
+    <!-- ADMIN -->
+    <div class="box" id="adminBox">
+        <h2>🏢 Administração</h2>
 
         <label>Nome da Empresa</label>
         <input id="editEmpresa">
@@ -124,60 +128,99 @@ button:hover {
         <label>Endereço</label>
         <input id="editEndereco">
 
-        <label>Telefone</label>
-        <input id="editTelefone" placeholder="(00) 00000-0000">
-
         <button onclick="salvarEmpresa()">💾 Salvar Dados</button>
 
-        <h2 style="margin-top:30px">🔗 Link para o Cliente</h2>
-        <p>Envie este link para o cliente agendar:</p>
-        <div class="link-box" id="linkSite"></div>
+        <h2 style="margin-top:20px">🔗 Link para Cliente</h2>
+        <div class="link-box" id="linkCliente"></div>
+
+        <h2 style="margin-top:25px">📆 Minha Agenda</h2>
+
+        <label>Selecionar dia</label>
+        <input type="date" id="diaAgenda" onchange="mostrarAgenda()">
+
+        <div id="listaAgenda"></div>
     </div>
 
 </div>
 
 <script>
-// carregar empresa
-document.getElementById("empresaNome").innerText =
-localStorage.getItem("empresaNome") || "Especialista Vistorias";
+const params = new URLSearchParams(window.location.search);
+const modoCliente = params.get("cliente") === "1";
 
-document.getElementById("empresaEndereco").innerText =
-localStorage.getItem("empresaEndereco") || "Av. das Fontes, nº 40";
+// carregar empresa
+empresaNome.innerText = localStorage.getItem("empresaNome") || "Especialista Vistorias";
+empresaEndereco.innerText = localStorage.getItem("empresaEndereco") || "Av. das Fontes, nº 40";
+
+// carregar valor padrão
+valor.value = localStorage.getItem("valorVistoria") || "";
 
 // salvar empresa
 function salvarEmpresa() {
-    localStorage.setItem("empresaNome", document.getElementById("editEmpresa").value);
-    localStorage.setItem("empresaEndereco", document.getElementById("editEndereco").value);
-    localStorage.setItem("empresaTelefone", document.getElementById("editTelefone").value);
-
-    document.getElementById("empresaNome").innerText =
-    document.getElementById("editEmpresa").value;
-
-    document.getElementById("empresaEndereco").innerText =
-    document.getElementById("editEndereco").value;
-
-    alert("Dados da empresa atualizados!");
+    localStorage.setItem("empresaNome", editEmpresa.value);
+    localStorage.setItem("empresaEndereco", editEndereco.value);
+    empresaNome.innerText = editEmpresa.value;
+    empresaEndereco.innerText = editEndereco.value;
+    alert("Dados salvos");
 }
 
-// whatsapp
-function enviarWhats() {
-    const msg =
-`Agendamento de Vistoria
+// confirmar agendamento
+function confirmar() {
+    localStorage.setItem("valorVistoria", valor.value);
 
-Cliente: ${cliente.value}
-Veículo: ${veiculo.value}
-Data: ${data.value}
-Horário: ${hora.value}
-Valor: R$ ${valor.value}
+    const agendamento = {
+        nome: cliente.value,
+        veiculo: veiculo.value,
+        data: data.value,
+        hora: hora.value,
+        valor: valor.value
+    };
 
-${empresaNome.innerText}
-${empresaEndereco.innerText}`;
+    const lista = JSON.parse(localStorage.getItem("agendamentos") || "[]");
+    lista.push(agendamento);
+    localStorage.setItem("agendamentos", JSON.stringify(lista));
+
+    const msg = `Agendamento de Vistoria
+Nome: ${agendamento.nome}
+Veículo: ${agendamento.veiculo}
+Data: ${agendamento.data}
+Horário: ${agendamento.hora}
+Valor: R$ ${agendamento.valor}
+
+${empresaNome.innerText}`;
 
     window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 }
 
-// link
-document.getElementById("linkSite").innerText = window.location.href;
+// mostrar agenda do dia
+function mostrarAgenda() {
+    const dia = diaAgenda.value;
+    const lista = JSON.parse(localStorage.getItem("agendamentos") || "[]");
+    listaAgenda.innerHTML = "";
+
+    const filtrados = lista.filter(a => a.data === dia);
+
+    if (filtrados.length === 0) {
+        listaAgenda.innerHTML = "<p>Nenhum agendamento neste dia.</p>";
+        return;
+    }
+
+    filtrados.forEach(a => {
+        listaAgenda.innerHTML += `
+        <div class="agendamento">
+            <strong>${a.hora}</strong> – ${a.nome}<br>
+            ${a.veiculo} | R$ ${a.valor}
+        </div>`;
+    });
+}
+
+// link cliente
+linkCliente.innerText = window.location.origin + window.location.pathname + "?cliente=1";
+
+// modo cliente
+if (modoCliente) {
+    adminBox.style.display = "none";
+    valor.readOnly = true;
+}
 </script>
 
 </body>
