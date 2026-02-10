@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Agendamento de Vistoria</title>
+</head>
+<body>
+  <h1>Agendamento de Vistoria</h1>
+  <p>Site funcionando corretamente.</p>
+</body>
+</html>
