@@ -113,7 +113,7 @@ button {
         <input type="time" id="hora">
 
         <label>Valor da Vistoria (R$)</label>
-        <input id="valor">
+        <input id="valorCliente" readonly>
 
         <button onclick="confirmar()">Confirmar Agendamento</button>
     </div>
@@ -128,16 +128,17 @@ button {
         <label>Endereço</label>
         <input id="editEndereco">
 
+        <label>Valor da Vistoria (R$)</label>
+        <input id="valorAdmin" placeholder="Ex: 150,00">
+
         <button onclick="salvarEmpresa()">💾 Salvar Dados</button>
 
         <h2 style="margin-top:20px">🔗 Link para Cliente</h2>
         <div class="link-box" id="linkCliente"></div>
 
         <h2 style="margin-top:25px">📆 Minha Agenda</h2>
-
         <label>Selecionar dia</label>
         <input type="date" id="diaAgenda" onchange="mostrarAgenda()">
-
         <div id="listaAgenda"></div>
     </div>
 
@@ -147,32 +148,34 @@ button {
 const params = new URLSearchParams(window.location.search);
 const modoCliente = params.get("cliente") === "1";
 
-// carregar empresa
+// carregar dados
 empresaNome.innerText = localStorage.getItem("empresaNome") || "Especialista Vistorias";
 empresaEndereco.innerText = localStorage.getItem("empresaEndereco") || "Av. das Fontes, nº 40";
 
-// carregar valor padrão
-valor.value = localStorage.getItem("valorVistoria") || "";
+valorAdmin.value = localStorage.getItem("valorVistoria") || "";
+valorCliente.value = localStorage.getItem("valorVistoria") || "";
 
-// salvar empresa
+// salvar empresa / valor
 function salvarEmpresa() {
     localStorage.setItem("empresaNome", editEmpresa.value);
     localStorage.setItem("empresaEndereco", editEndereco.value);
+    localStorage.setItem("valorVistoria", valorAdmin.value);
+
     empresaNome.innerText = editEmpresa.value;
     empresaEndereco.innerText = editEndereco.value;
-    alert("Dados salvos");
+    valorCliente.value = valorAdmin.value;
+
+    alert("Dados salvos com sucesso");
 }
 
 // confirmar agendamento
 function confirmar() {
-    localStorage.setItem("valorVistoria", valor.value);
-
     const agendamento = {
         nome: cliente.value,
         veiculo: veiculo.value,
         data: data.value,
         hora: hora.value,
-        valor: valor.value
+        valor: valorCliente.value
     };
 
     const lista = JSON.parse(localStorage.getItem("agendamentos") || "[]");
@@ -191,7 +194,7 @@ ${empresaNome.innerText}`;
     window.open("https://wa.me/?text=" + encodeURIComponent(msg));
 }
 
-// mostrar agenda do dia
+// agenda do dia
 function mostrarAgenda() {
     const dia = diaAgenda.value;
     const lista = JSON.parse(localStorage.getItem("agendamentos") || "[]");
@@ -219,7 +222,6 @@ linkCliente.innerText = window.location.origin + window.location.pathname + "?cl
 // modo cliente
 if (modoCliente) {
     adminBox.style.display = "none";
-    valor.readOnly = true;
 }
 </script>
 
