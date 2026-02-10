@@ -1,11 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>Agendamento de Vistoria</title>
+<meta charset="UTF-8">
+<title>Agendamento de Vistoria</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font-family: Arial; background:#f2f2f2; padding:20px; }
+.container { background:#fff; padding:20px; border-radius:8px; max-width:420px; margin:auto; }
+h2 { text-align:center; }
+label { display:block; margin-top:10px; }
+input, select, button {
+  width:100%; padding:10px; margin-top:5px;
+}
+button { background:#007bff; color:#fff; border:none; border-radius:5px; }
+.list { margin-top:20px; font-size:14px; }
+.item { background:#eee; padding:8px; margin-top:5px; border-radius:5px; }
+small { color:#555; }
+</style>
 </head>
+
 <body>
-  <h1>Agendamento de Vistoria</h1>
-  <p>Site funcionando corretamente.</p>
+<div class="container">
+<h2>Agendamento de Vistoria</h2>
+
+<label>Nome</label>
+<input id="nome">
+
+<label>Veículo</label>
+<input id="veiculo">
+
+<label>Data</label>
+<input type="date" id="data">
+
+<label>Horário</label>
+<select id="hora"></select>
+
+<button onclick="agendar()">Agendar</button>
+
+<div class="list" id="lista"></div>
+</div>
+
+<script>
+const horarios = [
+"08:00","09:00","10:00","11:00",
+"13:00","14:00","15:00","16:00","17:00"
+];
+
+function carregarHorarios(){
+  const sel = document.getElementById("hora");
+  sel.innerHTML="";
+  horarios.forEach(h=>{
+    const opt=document.createElement("option");
+    opt.value=h; opt.text=h;
+    sel.appendChild(opt);
+  });
+}
+
+function agendar(){
+  const nome = nomeEl.value.trim();
+  const veiculo = veiculoEl.value.trim();
+  const data = dataEl.value;
+  const hora = horaEl.value;
+
+  if(!nome || !veiculo || !data) return alert("Preencha tudo");
+
+  const key = data+"_"+hora;
+  const dados = JSON.parse(localStorage.getItem("agenda")||"{}");
+
+  if(dados[key]) return alert("Horário já ocupado");
+
+  dados[key]={nome,veiculo,data,hora};
+  localStorage.setItem("agenda",JSON.stringify(dados));
+  mostrar();
+}
+
+function cancelar(k){
+  const dados = JSON.parse(localStorage.getItem("agenda"));
+  delete dados[k];
+  localStorage.setItem("agenda",JSON.stringify(dados));
+  mostrar();
+}
+
+function mostrar(){
+  const div = document.getElementById("lista");
+  div.innerHTML="<h3>Agendamentos</h3>";
+  const dados = JSON.parse(localStorage.getItem("agenda")||"{}");
+
+  Object.keys(dados).sort().forEach(k=>{
+    const a=dados[k];
+    div.innerHTML+=`
+    <div class="item">
+      <b>${a.data} ${a.hora}</b><br>
+      ${a.nome} - ${a.veiculo}<br>
+      <small onclick="cancelar('${k}')" style="cursor:pointer;color:red">Cancelar</small>
+    </div>`;
+  });
+}
+
+const nomeEl = document.getElementById("nome");
+const veiculoEl = document.getElementById("veiculo");
+const dataEl = document.getElementById("data");
+
+carregarHorarios();
+mostrar();
+</script>
 </body>
 </html>
